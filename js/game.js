@@ -1,14 +1,14 @@
 const config = {
-    type: Phaser.AUTO,
-    parent: 'content',
-    width: 640,
-    height: 512,
-    scene: {
-        key: 'main',
-        preload: preload,
-        create: create,
-        update: update,
-    },
+  type: Phaser.AUTO,
+  parent: 'content',
+  width: 640,
+  height: 512,
+  scene: {
+    key: 'main',
+    preload: preload,
+    create: create,
+    update: update,
+  },
 };
 
 const game = new Phaser.Game(config);
@@ -17,7 +17,20 @@ let graphics;
 let path;
 
 // Enemy speed defined as global variable temporarily
-const ENEMY_SPEED = 1/10000;
+const ENEMY_SPEED = 1 / 10000;
+
+// Array map to check if places are free on grid
+// Notice the similarity to the grid where the line is placed
+let map = [
+  [0, -1, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, -1, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, -1, -1, -1, -1, -1, -1, -1, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, -1, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, -1, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, -1, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, -1, 0, 0],
+  [0, 0, 0, 0, 0, 0, 0, -1, 0, 0],
+];
 
 function preload() {
   this.load.atlas(
@@ -65,41 +78,54 @@ const Enemy = new Phaser.Class({
 });
 
 const Turret = new Phaser.Class({
-    Extends: Phaser.GameObjects.Image,
+  Extends: Phaser.GameObjects.Image,
 
-    initialize:
-
-    function Turret(scene)
-    {
-        Phaser.GameObjects.Image.call(this, scene, 0, 0, 'sprites', 'turret');
-        this.nextTic = 0;
-    },
-    // places the turret according to grid
-    place: function(i, j) {
-        this.y = i * 64 + 64/2;
-        this.x = j * 64 + 64/2;
-        map[i][j] = 1;
-    },
-    update: function(time, delta)
-    {
-        // time to shoot
-        if (time > this.nextTic) {
-            this.nextTic = time + 1000;
-        }
+  initialize: function Turret(scene) {
+    Phaser.GameObjects.Image.call(this, scene, 0, 0, 'sprites', 'turret');
+    this.nextTic = 0;
+  },
+  // places the turret according to grid
+  place: function (i, j) {
+    this.y = i * 64 + 64 / 2;
+    this.x = j * 64 + 64 / 2;
+    map[i][j] = 1;
+  },
+  update: function (time, delta) {
+    // time to shoot
+    if (time > this.nextTic) {
+      this.nextTic = time + 1000;
     }
-})
+  },
+});
 
 function drawGrid(graphics) {
-    graphics.lineStyle(1, 0x0000ff, 0.8);
-    for (let i = 0; i < 8; i++) {
-        graphics.moveTo(0, i * 64);
-        graphics.lineTo(640, i * 64);
+  graphics.lineStyle(1, 0x0000ff, 0.8);
+  for (let i = 0; i < 8; i++) {
+    graphics.moveTo(0, i * 64);
+    graphics.lineTo(640, i * 64);
+  }
+  for (let j = 0; j < 10; j++) {
+    graphics.moveTo(j * 64, 0);
+    graphics.lineTo(j * 64, 512);
+  }
+  graphics.strokePath();
+}
+
+function placeTurret(pointer) {
+  let i = Math.floor(pointer.y / 64);
+  let j = Math.floor(pointer.x / 64);
+  if (canPlaceTurret(i, j)) {
+    const turret = turrets.get();
+    if (turret) {
+      turret.setActive(true);
+      turret.setVisible(true);
+      turret.place(i, j);
     }
-    for (let j = 0; j < 10; j++) {
-        graphics.moveTo(j * 64, 0);
-        graphics.lineTo(j * 64, 512);
-    }
-    graphics.strokePath();
+  }
+
+  function canPlaceTurret(i, j) {
+    return map[i][j] === 0;
+  }
 }
 
 function create() {
@@ -122,6 +148,10 @@ function create() {
   // Add enemies group to the game
   enemies = this.add.group({ classType: Enemy, runChildUpdate: true });
   this.nextEnemy = 0;
+
+  // Add turrets
+  turrets = this.add.group({ classType: Turret, runChildUpdate: true });
+  this.input.on('pointerdown', placeTurret);
 }
 
 function update(time, delta) {
