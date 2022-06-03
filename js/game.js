@@ -5,9 +5,9 @@ const config = {
     height: 512,
     scene: {
         key: 'main',
-        preload,
-        create,
-        update
+        preload: preload,
+        create: create,
+        update: update
     }
 };
 
@@ -16,15 +16,28 @@ const game = new Phaser.Game(config);
 let graphics;
 let path;
 
-const preload = () => {
+function preload() {
     this.load.atlas('sprites', 'assets/spritesheet.png', 'assets/spritesheet.json');
     this.load.image('bullet', 'assets/bullet.png');
 }
 
-const create = () => {
+function create() {
+    // graphics element only for visualization
+    // NOT RELATED TO PATH
+    let graphics = this.add.graphics();
 
+    // The path for enemies
+    // parameters are the start x and y of path
+    path = this.add.path(96, -32);
+    path.lineTo(96, 164);
+    path.lineTo(480, 164);
+    path.lineTo(480, 544);
+
+    graphics.lineStyle(3, 0xffffff, 1);
+    // visualize the path
+    path.draw(graphics);
 }
 
-const update = () => {
-    
+function update() {
+
 }
