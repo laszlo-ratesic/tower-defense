@@ -33,7 +33,22 @@ const Enemy = new Phaser.Class({
     },
     update: function(time, delta)
     {
+        // move the t point along the path,
+        // 0 is both start and end
+        this.follower.t += ENEMY_SPEED * delta;
 
+        // get the new x and y coords in vec
+        path.getPoint(this.follower.t, this.follower.vec);
+
+        // update enemy x and y to above
+        this.setPosition(this.follower.vec.x, this.follower.vec.y);
+
+        // if we have reached the end of the path, remove enemy
+        if (this.follower.t >= 1)
+        {
+            this.setActive(false);
+            this.setVisible(false);
+        }
     },
     startOnPath: function ()
     {
