@@ -64,10 +64,24 @@ const Enemy = new Phaser.Class({
   },
 });
 
+function drawGrid(graphics) {
+    graphics.lineStyle(1, 0x0000ff, 0.8);
+    for (let i = 0; i < 8; i++) {
+        graphics.moveTo(0, i * 64);
+        graphics.lineTo(640, i * 64);
+    }
+    for (let j = 0; j < 10; j++) {
+        graphics.moveTo(j * 64, 0);
+        graphics.lineTo(j * 64, 512);
+    }
+    graphics.strokePath();
+}
+
 function create() {
   // graphics element only for visualization
   // NOT RELATED TO PATH
   let graphics = this.add.graphics();
+  drawGrid(graphics);
 
   // The path for enemies
   // parameters are the start x and y of path
