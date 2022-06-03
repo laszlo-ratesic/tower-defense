@@ -64,6 +64,31 @@ const Enemy = new Phaser.Class({
   },
 });
 
+const Turret = new Phaser.Class({
+    Extends: Phaser.GameObjects.Image,
+
+    initialize:
+
+    function Turret(scene)
+    {
+        Phaser.GameObjects.Image.call(this, scene, 0, 0, 'sprites', 'turret');
+        this.nextTic = 0;
+    },
+    // places the turret according to grid
+    place: function(i, j) {
+        this.y = i * 64 + 64/2;
+        this.x = j * 64 + 64/2;
+        map[i][j] = 1;
+    },
+    update: function(time, delta)
+    {
+        // time to shoot
+        if (time > this.nextTic) {
+            this.nextTic = time + 1000;
+        }
+    }
+})
+
 function drawGrid(graphics) {
     graphics.lineStyle(1, 0x0000ff, 0.8);
     for (let i = 0; i < 8; i++) {
