@@ -29,11 +29,24 @@ const Enemy = new Phaser.Class({
     function Enemy (scene)
     {
         Phaser.GameObjects.Image.call(this, scene, 0, 0, 'sprites', 'enemy');
+        this.follower = { t: 0, vec: new Phaser.Math.Vector2() };
     },
     update: function(time, delta)
     {
-        
+
+    },
+    startOnPath: function ()
+    {
+        // set the t param at the start of the path
+        this.follower.t = 0;
+
+        // get x and y of the given t point
+        path.getPoint(this.follower.t, this.follower.vec);
+
+        // set the x and y of our enemy to what we receive above
+        this.setPosition(this.follower.vec.x, this.follower.vec.y);
     }
+
 })
 
 function create() {
